@@ -9,7 +9,13 @@
     "test-utils": "mocha spec/utils.spec.js",
     "test": "mocha spec/app.spec.js",
     "migrate-make": "knex migrate:make",
-    "migrate-latest": "knex migrate:latest"
+    "migrate-latest": "knex migrate:latest",
+    "migrate-rollback": "knex migrate:rollback",
+    "migrate-latest-test": "NODE_ENV=test knex migrate:latest",
+    "migrate-rollback-test": "NODE_ENV=test knex migrate:rollback",
+    "seed-dev": "knex seed:run",
+    "seed-test": " NODE_ENV=test knex seed:run",
+    "query": "psql -f db/utils/query/query.sql > db/utils/query/output.txt"
   },
   "repository": {
     "type": "git",

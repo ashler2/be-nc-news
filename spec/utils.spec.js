@@ -1,3 +1,5 @@
+process.env.NODE_ENV = "test";
+
 const { expect } = require("chai");
 const { formatDate, makeRefObj, formatComments } = require("../db/utils/utils");
 
@@ -62,9 +64,41 @@ describe("formatDate", () => {
         votes: 100
       }
     ]);
+    expect(formatDate(test)).to.equal;
+  });
+  describe("seeding", () => {
+    describe("article-test seeding", () => {
+      it("articles table has 12 rows", () => {
+        //
+      });
+    });
   });
 });
 
-describe("makeRefObj", () => {});
+describe("makeRefObj", () => {
+  it("returns a reference object for single object in array", () => {
+    const test = [
+      {
+        article_id: 1,
+        title: "A"
+      }
+    ];
+
+    expect(makeRefObj(test)).to.eql([{ A: 1 }]);
+  });
+  it("returns reference obejcts for an array", () => {
+    const test = [
+      {
+        article_id: 1,
+        title: "A"
+      },
+      {
+        article_id: 2,
+        title: "B"
+      }
+    ];
+    expect(makeRefObj(test)).to.eql([{ A: 1 }, { B: 2 }]);
+  });
+});
 
 describe("formatComments", () => {});

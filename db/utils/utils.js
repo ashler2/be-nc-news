@@ -6,10 +6,13 @@ exports.formatDate = list => {
 };
 
 exports.makeRefObj = list => {
-  return rows.reduce((refs, row) => {
-    refs[row[rowName]] = row[idName];
-    return refs;
-  }, {});
+  const reference = [];
+  list.forEach(item => {
+    const ref = { [item.title]: item.article_id };
+    console.log(ref);
+    reference.push(ref);
+  });
+  return reference;
 };
 
 exports.formatComments = (comments, articleRef) => {};
