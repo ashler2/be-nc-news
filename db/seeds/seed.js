@@ -22,9 +22,12 @@ exports.seed = function(knex, Promise) {
       });
     })
     .then(articleRows => {
-      formatDate(commentData);
       const articleRef = makeRefObj(articleRows, "article_id", "title");
-      const formattedComments = formatComments(commentData, articleRef);
+      const formattedComments = formatComments(
+        formatDate(commentData),
+        articleRef
+      );
+
       return knex("comments").insert(formattedComments);
     });
 };

@@ -1,8 +1,8 @@
 exports.formatDate = list => {
-  list.forEach(item => {
-    item.created_at = new Date(item.created_at);
+  return list.map(item => {
+    return { ...item, created_at: new Date(item.created_at) };
+    // item.created_at = new Date(item.created_at);
   });
-  return list;
 };
 
 exports.makeRefObj = (list, idName, rowName) => {
