@@ -16,7 +16,8 @@
     "seed-roll-test": "NODE_ENV=test knex migrate:rollback && knex migrate:latest knex seed:run",
     "seed-dev": "knex seed:run",
     "seed-test": " NODE_ENV=test knex seed:run",
-    "query": "psql -f db/utils/query/query.sql > db/utils/query/output.txt"
+    "query": "psql -f db/utils/query/query.sql > db/utils/query/output.txt",
+    "dev": "nodemon server/listen.js"
   },
   "repository": {
     "type": "git",
