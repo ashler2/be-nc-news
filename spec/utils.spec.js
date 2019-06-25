@@ -22,7 +22,7 @@ describe("formatDate", () => {
         topic: "mitch",
         author: "butter_bridge",
         body: "I find this existence challenging",
-        created_at: "Thu Nov 15 2018 12:21:54 GMT+0000 (Greenwich Mean Time)",
+        created_at: new Date(1542284514171),
         votes: 100
       }
     ]);
@@ -52,7 +52,8 @@ describe("formatDate", () => {
         topic: "mitch",
         author: "butter_bridge",
         body: "I find this existence challenging",
-        created_at: "Thu Nov 15 2018 12:21:54 GMT+0000 (Greenwich Mean Time)",
+        created_at: new Date(1542284514171),
+
         votes: 100
       },
       {
@@ -60,7 +61,8 @@ describe("formatDate", () => {
         topic: "mitch",
         author: "butter_bridge",
         body: "I find this existence challenging",
-        created_at: "Thu Nov 15 2018 12:21:54 GMT+0000 (Greenwich Mean Time)",
+        created_at: new Date(1542284514171),
+
         votes: 100
       }
     ]);
@@ -84,7 +86,7 @@ describe("makeRefObj", () => {
       }
     ];
 
-    expect(makeRefObj(test)).to.eql([{ A: 1 }]);
+    expect(makeRefObj(test, "article_id", "title")).to.eql({ A: 1 });
   });
   it("returns reference obejcts for an array", () => {
     const test = [
@@ -97,8 +99,39 @@ describe("makeRefObj", () => {
         title: "B"
       }
     ];
-    expect(makeRefObj(test)).to.eql([{ A: 1 }, { B: 2 }]);
+    expect(makeRefObj(test, "article_id", "title")).to.eql({ A: 1, B: 2 });
   });
 });
 
-describe("formatComments", () => {});
+describe("formatComments", () => {
+  it("formats a comment", () => {
+    const tester = [
+      {
+        article_id: 9,
+        title: "They're not exactly dogs, are they?"
+      }
+    ];
+    let news = makeRefObj(tester, "article_id", "title");
+    const test = [
+      {
+        body:
+          "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        belongs_to: "They're not exactly dogs, are they?",
+        created_by: "butter_bridge",
+        votes: 16,
+        created_at: 1511354163389
+      }
+    ];
+    formatDate(test);
+    expect(formatComments(test, news)).to.eql([
+      {
+        body:
+          "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        article_id: 9,
+        author: "butter_bridge",
+        votes: 16,
+        created_at: new Date(1511354163389)
+      }
+    ]);
+  });
+});

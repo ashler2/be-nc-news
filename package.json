@@ -13,6 +13,7 @@
     "migrate-rollback": "knex migrate:rollback",
     "migrate-latest-test": "NODE_ENV=test knex migrate:latest",
     "migrate-rollback-test": "NODE_ENV=test knex migrate:rollback",
+    "seed-roll-test": "NODE_ENV=test knex migrate:rollback && knex migrate:latest knex seed:run",
     "seed-dev": "knex seed:run",
     "seed-test": " NODE_ENV=test knex seed:run",
     "query": "psql -f db/utils/query/query.sql > db/utils/query/output.txt"
