@@ -5,7 +5,7 @@ const getTopics = () => {
     .select("*")
     .from("topics")
     .then(data => {
-      return data;
+      return { topics: data };
     });
 };
 

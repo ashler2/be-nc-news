@@ -1,5 +1,5 @@
 exports.up = function(knex, Promise) {
-  console.log("comments table creation happening...");
+  // console.log("comments table creation happening...");
   return knex.schema.createTable("comments", commentsTable => {
     commentsTable.increments("comment_id").primary();
     commentsTable
@@ -17,6 +17,6 @@ exports.up = function(knex, Promise) {
 };
 
 exports.down = function(knex, Promise) {
-  console.log("comments table destoryed");
+  // console.log("comments table destoryed");
   return knex.schema.dropTable("comments");
 };
