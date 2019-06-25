@@ -5,7 +5,7 @@ const fetchUserByUsername = (req, res, next) => {
 
   return getUserByUsername(params)
     .then(user => {
-      res.status(200).send(user);
+      res.status(200).send({ user });
     })
     .catch(next);
 };

@@ -5,9 +5,14 @@ const getUserByUsername = params => {
     .select("*")
     .from("users")
     .where("username", params.username)
-    .then(data => {
-      return { user: data };
+    .then(([user]) => {
+      if (!user)
+        return Promise.reject({
+          status: 404,
+          msg: "404 - invaild username"
+        });
+      return user;
     });
 };
-//test for fetch username
+
 module.exports = { getUserByUsername };

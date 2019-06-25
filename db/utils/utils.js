@@ -22,6 +22,7 @@ exports.formatComments = (comments, articleRef) => {
     return newList;
   };
   changeKey(comments, "belongs_to", "article_id");
+
   changeKey(comments, "created_by", "author");
 
   return comments.map(({ article_id, ...restOfData }) => {
