@@ -15,7 +15,6 @@ const getArticlesById = params => {
 };
 
 const getArticles = queries => {
-  console.log(queries);
   return connection("articles")
     .count("comments.article_id as comment_count ")
     .select(
@@ -30,11 +29,6 @@ const getArticles = queries => {
     .groupBy("articles.article_id", "comments.article_id")
     .orderBy(queries.sort_by || "articles.created_at", queries.order || "Desc")
     .modify(query => {
-      // if (queries.sort_by)
-      //   query.orderBy(
-      //     queries.sort_by || "articles.timestamp",
-      //     queries.order || "Desc"
-      //   );
       if (queries.author) query.where("articles.author", "=", queries.author);
       if (queries.topic) query.where("articles.topic", "=", queries.topic);
     })

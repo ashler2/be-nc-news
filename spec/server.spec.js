@@ -297,11 +297,74 @@ describe("tests", () => {
           )
           .expect(200)
           .then(({ body }) => {
-            console.log(body);
             expect(body.articles[0].topic).to.eql("mitch");
             expect(body.articles).to.be.an("array");
             expect(body.articles.length).to.eql(6);
             expect(body.articles).to.be.ascendingBy("title");
+          });
+      });
+      it("works with just topic", () => {
+        return request
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles[0].topic).to.eql("mitch");
+            expect(body.articles).to.be.an("array");
+            expect(body.articles.length).to.eql(11);
+            expect(body.articles).to.be.descendingBy("created_at");
+          });
+      });
+    });
+  });
+  describe("/api/comments/:comment_id", () => {
+    describe("Patch comments", () => {
+      it("returns a patched comment ", () => {
+        const test = { inc_votes: 10 };
+        return request
+          .patch("/api/comments/1")
+          .send(test)
+          .expect(201)
+          .then(({ body }) => {
+            expect(body.updatedComment.votes).to.eql(26);
+            // console.log(res.body);
+          });
+      });
+      it("returns a patched comment votes negative ", () => {
+        const test = { inc_votes: -116 };
+        return request
+          .patch("/api/comments/1")
+          .send(test)
+          .expect(201)
+          .then(({ body }) => {
+            expect(body.updatedComment.votes).to.eql(-100);
+            // console.log(res.body);
+          });
+      });
+      it("error when wrong input ", () => {
+        const test = { inc_botes: "hello" };
+        return request
+          .patch("/api/comments/1")
+          .send(test)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("invaild format - { inc_votes: integer }");
+            // console.log(res.body);
+          });
+      });
+    });
+    describe("Delete Comment", () => {
+      it("delete a comment by comment_id", () => {
+        return request
+          .delete("/api/comments/1")
+          .expect(204)
+          .then(res => {})
+          .then(test => {
+            return request
+              .get("/api/articles/9")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.articles.comment_count).to.eql(1);
+              });
           });
       });
     });
