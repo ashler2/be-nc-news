@@ -82,12 +82,11 @@ describe("tests", () => {
     });
   });
   describe("/api/atricles/:article_id", () => {
-    it("/api/atricles/:article_id", () => {
+    it("Get /api/atricles/:article_id", () => {
       return request
         .get("/api/articles/1")
         .expect(200)
         .then(res => {
-          console.log(res.body);
           expect(res.body).to.eql({
             articles: {
               article_id: 1,
@@ -107,20 +106,46 @@ describe("tests", () => {
         .get("/api/articles/2")
         .expect(200)
         .then(res => {
-          console.log(res.body);
           expect(res.body).to.eql({
             articles: {
               article_id: 2,
               title: "Sony Vaio; or, The Laptop",
+              votes: 0,
               topic: "mitch",
               author: "icellusedkars",
               body:
                 "Call me Mitchell. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would buy a laptop about a little and see the codey part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to coding as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the laptop. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the the Vaio with me.",
-              created_at: 1416140514171,
+              created_at: "2014-11-16T12:21:54.171Z",
               comment_count: 0
             }
           });
         });
     });
+    it("updates the votes with patch request", () => {
+      const test = { inc_votes: 10 };
+      return request
+        .patch("/api/articles/1")
+        .send(test)
+        .expect(201)
+        .then(res => {
+          console.log(res.body.update.votes);
+
+          expect(res.body.update.votes).to.eql(110);
+          // console.log(res.body);
+        });
+    });
+    it("updates to below 0", () => {
+      const test = { inc_votes: -110 };
+      return request
+        .patch("/api/articles/1")
+        .send(test)
+        .expect(201)
+        .then(res => {
+          console.log(res.body.update.votes);
+          expect(res.body.update.votes).to.eql(-10);
+        });
+    });
+    // question : when using insomnia ect votes always 0
+    //test invaild format
   });
 });

@@ -1,7 +1,13 @@
 const express = require("express");
 const articleRouter = express.Router();
-const { fetchArticlesById } = require("../controllers/articlesController");
+const {
+  fetchArticlesById,
+  updateVotes
+} = require("../controllers/articlesController");
 
-articleRouter.route("/:article_id").get(fetchArticlesById);
+articleRouter
+  .route("/:article_id")
+  .get(fetchArticlesById)
+  .patch(updateVotes);
 
 module.exports = { articleRouter };
