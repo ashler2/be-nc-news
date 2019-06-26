@@ -2,6 +2,8 @@ process.env.NODE_ENV = "test";
 const { app } = require("../server/app");
 const request = require("supertest")(app);
 const chai = require("chai");
+
+chai.use(require("chai-sorted"));
 const expect = chai.expect;
 const connection = require("../server/connection");
 describe("tests", () => {
@@ -219,7 +221,27 @@ describe("tests", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body.comments).to.be.an("array");
-            console.log(body);
+            expect(body.comments.length).to.eql(13);
+          });
+      });
+      it("accepts query for sort by", () => {
+        return request
+          .get("/api/articles/1/comments?sort_by=created_at")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments).to.be.an("array");
+            expect(body.comments.length).to.eql(13);
+            expect(body.comments).to.be.ascendingBy("created_at");
+          });
+      });
+      it("accepts query for sort by and order", () => {
+        return request
+          .get("/api/articles/1/comments?sort_by=created_at&order=desc")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments).to.be.an("array");
+            expect(body.comments.length).to.eql(13);
+            expect(body.comments).to.be.descendingBy("created_at");
           });
       });
     });

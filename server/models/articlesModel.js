@@ -49,12 +49,15 @@ const postComment = (params, body) => {
     });
 };
 
-const getComments = params => {
+const getComments = (params, queries) => {
   return connection("comments")
     .select("comments.*")
     .where("articles.article_id", "=", params.article_id)
     .join("articles", "articles.article_id", "=", "comments.article_id")
-
+    .modify(query => {
+      if (queries.sort_by)
+        query.orderBy(queries.sort_by, queries.order || "ASC");
+    })
     .then(data => {
       return data;
     });

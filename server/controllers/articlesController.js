@@ -38,7 +38,9 @@ const sendComment = (req, res, next) => {
 
 const fetchComment = (req, res, next) => {
   const params = req.params;
-  return getComments(params)
+  const queries = req.query;
+
+  return getComments(params, queries)
     .then(comments => {
       res.status(200).send({ comments });
     })
