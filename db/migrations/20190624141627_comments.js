@@ -11,7 +11,10 @@ exports.up = function(knex, Promise) {
       .references("articles.article_id")
       .notNullable();
     commentsTable.integer("votes").defaultTo(0);
-    commentsTable.timestamp("created_at").notNullable();
+    commentsTable
+      .timestamp("created_at")
+      .defaultTo(knex.fn.now())
+      .notNullable();
     commentsTable.string("body", 1000).notNullable();
   });
 };

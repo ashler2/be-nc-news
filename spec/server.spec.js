@@ -128,8 +128,6 @@ describe("tests", () => {
         .send(test)
         .expect(201)
         .then(res => {
-          console.log(res.body.update.votes);
-
           expect(res.body.update.votes).to.eql(110);
           // console.log(res.body);
         });
@@ -141,11 +139,89 @@ describe("tests", () => {
         .send(test)
         .expect(201)
         .then(res => {
-          console.log(res.body.update.votes);
           expect(res.body.update.votes).to.eql(-10);
         });
     });
-    // question : when using insomnia ect votes always 0
-    //test invaild format
+    it("400 Error: when presented with invaild format", () => {
+      const test = { inc_votes: "10" };
+      return request
+        .patch("/api/articles/1")
+        .send(test)
+        .expect(400)
+        .then(res => {
+          // console.log(res.body.update.votes);
+
+          expect(res.body.msg).to.eql(
+            "invaild format - { inc_votes: integer }"
+          );
+        });
+    });
+    it("invaild format key", () => {
+      const test = { inc_boats: 10 };
+      return request
+        .patch("/api/articles/1")
+        .send(test)
+        .expect(400)
+        .then(res => {
+          expect(res.body.msg).to.eql(
+            "invaild format - { inc_votes: integer }"
+          );
+        });
+    });
+
+    it("increases from 0", () => {
+      const test = { inc_votes: 10 };
+      return request
+        .patch("/api/articles/2")
+        .send(test)
+        .expect(201)
+        .then(res => {
+          expect(res.body.update.votes).to.eql(10);
+        })
+        .then(() => {
+          return request
+            .get("/api/articles/2")
+            .expect(200)
+            .then(res => {
+              expect(res.body.articles.votes).to.eql(10);
+            });
+        });
+    });
+
+    // insomnia not working as dev?
+    // test for invaild article ID
+  });
+  describe("/api/articles/:article_id/comment", () => {
+    describe("Post", () => {
+      it("Posts a comment", () => {
+        const test = { username: "butter_bridge", body: "this was good" };
+        return request
+          .post("/api/articles/2/comments")
+          .send(test)
+          .expect(201)
+          .then(({ body }) => {
+            expect(body.postedComment).to.have.keys(
+              "comment_id",
+              "author",
+              "article_id",
+              "votes",
+              "created_at",
+              "body"
+            );
+            expect(body.postedComment.comment_id).to.eql(19);
+          });
+      });
+    });
+    describe("Get", () => {
+      it("Gets the comments", () => {
+        return request
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments).to.be.an("array");
+            console.log(body);
+          });
+      });
+    });
   });
 });
