@@ -6,8 +6,11 @@ const {
   fetchArticlesById,
   updateVotes,
   sendComment,
-  fetchComment
+  fetchComment,
+  fetchArticles
 } = require("../controllers/articlesController");
+
+articleRouter.route("/").get(fetchArticles);
 
 articleRouter
   .route("/:article_id")

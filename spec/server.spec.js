@@ -246,4 +246,64 @@ describe("tests", () => {
       });
     });
   });
+  describe("/api/articles", () => {
+    describe("GET", () => {
+      it("Gets all articles", () => {
+        return request.get("/api/articles").then(({ body }) => {
+          expect(body.articles.length).to.eql(12);
+          expect(body.articles).to.be.descendingBy("created_at");
+        });
+      });
+      it("Gets using sort_by", () => {
+        return request
+          .get("/api/articles?sort_by=title")
+          .expect(200)
+          .then(({ body }) => {
+            // console.log(body);
+
+            expect(body.articles).to.be.an("array");
+            expect(body.articles.length).to.eql(12);
+            expect(body.articles).to.be.descendingBy("title");
+          });
+      });
+      it("sort_by Asc", () => {
+        return request
+          .get("/api/articles?sort_by=title&&order=ASC")
+          .expect(200)
+          .then(({ body }) => {
+            // console.log(body);
+
+            expect(body.articles).to.be.an("array");
+            expect(body.articles.length).to.eql(12);
+            expect(body.articles).to.be.ascendingBy("title");
+          });
+      });
+      it("sort_by title with Asc and by selected author", () => {
+        return request
+          .get("/api/articles?sort_by=title&&order=ASC&&author=icellusedkars")
+          .expect(200)
+          .then(({ body }) => {
+            // console.log(body);
+
+            expect(body.articles).to.be.an("array");
+            expect(body.articles.length).to.eql(6);
+            expect(body.articles).to.be.ascendingBy("title");
+          });
+      });
+      it("sort_by title with Asc and by selected author by topic", () => {
+        return request
+          .get(
+            "/api/articles?sort_by=title&&order=ASC&&author=icellusedkars&&topic=mitch"
+          )
+          .expect(200)
+          .then(({ body }) => {
+            console.log(body);
+            expect(body.articles[0].topic).to.eql("mitch");
+            expect(body.articles).to.be.an("array");
+            expect(body.articles.length).to.eql(6);
+            expect(body.articles).to.be.ascendingBy("title");
+          });
+      });
+    });
+  });
 });

@@ -1,5 +1,6 @@
 const connection = require("../connection");
 
+//could refactor to send getArticles to
 const getArticlesById = params => {
   return connection("articles")
     .count("comments.article_id as comment_count ")
@@ -10,6 +11,36 @@ const getArticlesById = params => {
     .then(([article]) => {
       article.comment_count = Number(article.comment_count);
       return article;
+    });
+};
+
+const getArticles = queries => {
+  console.log(queries);
+  return connection("articles")
+    .count("comments.article_id as comment_count ")
+    .select(
+      "articles.author",
+      "articles.title",
+      "articles.article_id",
+      "articles.topic",
+      "articles.created_at",
+      "articles.votes"
+    )
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .groupBy("articles.article_id", "comments.article_id")
+    .orderBy(queries.sort_by || "articles.created_at", queries.order || "Desc")
+    .modify(query => {
+      // if (queries.sort_by)
+      //   query.orderBy(
+      //     queries.sort_by || "articles.timestamp",
+      //     queries.order || "Desc"
+      //   );
+      if (queries.author) query.where("articles.author", "=", queries.author);
+      if (queries.topic) query.where("articles.topic", "=", queries.topic);
+    })
+
+    .then(articles => {
+      return articles;
     });
 };
 
@@ -62,4 +93,10 @@ const getComments = (params, queries) => {
       return data;
     });
 };
-module.exports = { getArticlesById, patchVotes, postComment, getComments };
+module.exports = {
+  getArticlesById,
+  patchVotes,
+  postComment,
+  getComments,
+  getArticles
+};
