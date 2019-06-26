@@ -1,5 +1,7 @@
 const express = require("express");
 const articleRouter = express.Router();
+const { send405Error } = require("../error/error");
+
 const {
   fetchArticlesById,
   updateVotes,
@@ -10,11 +12,13 @@ const {
 articleRouter
   .route("/:article_id")
   .get(fetchArticlesById)
-  .patch(updateVotes);
+  .patch(updateVotes)
+  .all(send405Error);
 
 articleRouter
   .route("/:article_id/comments")
   .post(sendComment)
-  .get(fetchComment);
+  .get(fetchComment)
+  .all(send405Error);
 
 module.exports = { articleRouter };
