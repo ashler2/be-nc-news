@@ -36,7 +36,8 @@ const getArticles = queries => {
       msg: "error: 400 - invalid innput"
     });
   }
-
+  //limit and start by
+  //start by needs to be a query for different page so if limit is 20 then start by is goinging to increase by 20
   return connection("articles")
     .count("comments.article_id as comment_count ")
     .select(
@@ -108,23 +109,25 @@ const postComment = (params, body) => {
 };
 
 const getComments = (params, queries) => {
-  return connection("comments")
-    .select("comments.*")
-    .where("articles.article_id", "=", params.article_id)
-    .join("articles", "articles.article_id", "=", "comments.article_id")
-    .modify(query => {
-      if (queries.sort_by)
-        query.orderBy(queries.sort_by, queries.order || "ASC");
-    })
-    .then(data => {
-      if (data.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: "Error 404: No comments Found"
-        });
-      }
-      return data;
-    });
+  return (
+    connection("comments")
+      .select("comments.*")
+      .where("articles.article_id", "=", params.article_id)
+      .join("articles", "articles.article_id", "=", "comments.article_id")
+      .orderBy(queries.sort_by || "created_at", queries.order || "ASC")
+      // .modify(query => {
+      //   if (queries.sort_by)
+      //     query.orderBy(queries.sort_by || "created_at", queries.order || "ASC");
+      .then(data => {
+        if (data.length === 0) {
+          return Promise.reject({
+            status: 404,
+            msg: "Error 404: No comments Found"
+          });
+        }
+        return data;
+      })
+  );
 };
 module.exports = {
   getArticlesById,
