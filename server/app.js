@@ -9,6 +9,7 @@ const {
 } = require("./error/error");
 
 app.use(express.json());
+
 app.use("/api", apiRouter);
 app.all("/*", send404UrlError);
 app.use(errorPsql400s);

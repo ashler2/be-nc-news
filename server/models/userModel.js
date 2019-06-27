@@ -9,7 +9,7 @@ const getUserByUsername = params => {
       if (!user)
         return Promise.reject({
           status: 404,
-          msg: "404 - invaild username"
+          msg: "404 - invalid username"
         });
       return user;
     });

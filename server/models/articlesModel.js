@@ -5,7 +5,7 @@ const getArticlesById = params => {
   if (params.article_id != Number(params.article_id))
     return Promise.reject({
       status: 400,
-      msg: "Error - 400 invaild input"
+      msg: "Error - 400 invalid input"
     });
 
   return connection("articles")
@@ -33,11 +33,11 @@ const getArticles = queries => {
   if (!["asc", "desc", undefined].includes(queries.order)) {
     return Promise.reject({
       status: 400,
-      msg: "error: 400 - invalid innput"
+      msg: "error: 400 - invalid input"
     });
   }
   //limit and start by
-  //start by needs to be a query for different page so if limit is 20 then start by is goinging to increase by 20
+  //start by needs to be a query for different page so if limit is 20 then start by is going  to increase by 20
   return connection("articles")
     .count("comments.article_id as comment_count ")
     .select(
@@ -79,10 +79,10 @@ const patchVotes = (params, body) => {
   if (!Number.isInteger(body.inc_votes)) {
     return Promise.reject({
       status: 400,
-      msg: "invaild format - { inc_votes: integer }"
+      msg: "invalid format - { inc_votes: integer }"
     });
   }
-  //incerment
+  //increments
   if (body.inc_votes > 0) votes.increment("votes", body.inc_votes);
   //decrement
   if (body.inc_votes < 0) votes.decrement("votes", Math.abs(body.inc_votes));
@@ -94,7 +94,7 @@ const patchVotes = (params, body) => {
 
 const postComment = (params, body) => {
   const article = Number(params.article_id);
-  //way to check that username is a vaild username
+  //way to check that username is a valid username
 
   return connection("comments")
     .insert({
@@ -109,25 +109,20 @@ const postComment = (params, body) => {
 };
 
 const getComments = (params, queries) => {
-  return (
-    connection("comments")
-      .select("comments.*")
-      .where("articles.article_id", "=", params.article_id)
-      .join("articles", "articles.article_id", "=", "comments.article_id")
-      .orderBy(queries.sort_by || "created_at", queries.order || "ASC")
-      // .modify(query => {
-      //   if (queries.sort_by)
-      //     query.orderBy(queries.sort_by || "created_at", queries.order || "ASC");
-      .then(data => {
-        if (data.length === 0) {
-          return Promise.reject({
-            status: 404,
-            msg: "Error 404: No comments Found"
-          });
-        }
-        return data;
-      })
-  );
+  return connection("comments")
+    .select("comments.*")
+    .where("articles.article_id", "=", params.article_id)
+    .join("articles", "articles.article_id", "=", "comments.article_id")
+    .orderBy(queries.sort_by || "created_at", queries.order || "DESC")
+    .then(data => {
+      if (data.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "Error 404: No comments Found"
+        });
+      }
+      return data;
+    });
 };
 module.exports = {
   getArticlesById,

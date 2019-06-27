@@ -8,10 +8,10 @@ const patchVotes = (params, body) => {
   if (!Number.isInteger(body.inc_votes)) {
     return Promise.reject({
       status: 400,
-      msg: "invaild format - { inc_votes: integer }"
+      msg: "invalid format - { inc_votes: integer }"
     });
   }
-  //incerment
+  //increments
   if (body.inc_votes > 0) votes.increment("votes", body.inc_votes);
   //decrement
   if (body.inc_votes < 0) votes.decrement("votes", Math.abs(body.inc_votes));
@@ -22,7 +22,7 @@ const patchVotes = (params, body) => {
   });
 };
 
-const destoryComment = params => {
+const destroyComment = params => {
   return connection("comments")
     .where("comment_id", params.comment_id)
     .del()
@@ -31,4 +31,4 @@ const destoryComment = params => {
     });
 };
 
-module.exports = { patchVotes, destoryComment };
+module.exports = { patchVotes, destroyComment };

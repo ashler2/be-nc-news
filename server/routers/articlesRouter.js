@@ -10,7 +10,10 @@ const {
   fetchArticles
 } = require("../controllers/articlesController");
 
-articleRouter.route("/").get(fetchArticles);
+articleRouter
+  .route("/")
+  .get(fetchArticles)
+  .all(send405Error);
 
 articleRouter
   .route("/:article_id")

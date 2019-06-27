@@ -1,4 +1,4 @@
-const { patchVotes, destoryComment } = require("../models/commentsModel");
+const { patchVotes, destroyComment } = require("../models/commentsModel");
 
 const updateCommentVotes = (req, res, next) => {
   const params = req.params;
@@ -12,7 +12,7 @@ const updateCommentVotes = (req, res, next) => {
 const deleteComment = (req, res, next) => {
   const params = req.params;
 
-  return destoryComment(params)
+  return destroyComment(params)
     .then(deletedComment => {
       res.status(204).send({ msg: "content deleted" });
     })

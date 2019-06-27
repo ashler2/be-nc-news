@@ -20,7 +20,7 @@
       }
     }
   },
-  "GET /api/articles/:artile_id": {
+  "GET /api/articles/:articles_id": {
     "description": "serves the data of a specified article",
     "queries": [],
     "exampleResponse": {

@@ -18,8 +18,8 @@ const fetchArticles = (req, res, next) => {
 const fetchArticlesById = (req, res, next) => {
   const params = req.params;
   return getArticlesById(params)
-    .then(articles => {
-      res.status(200).send({ articles });
+    .then(article => {
+      res.status(200).send({ article });
     })
     .catch(next);
 };
@@ -29,8 +29,8 @@ const updateVotes = (req, res, next) => {
   const body = req.body;
 
   return patchVotes(params, body)
-    .then(update => {
-      res.status(201).send({ update });
+    .then(article => {
+      res.status(200).send({ article });
     })
     .catch(next);
 };

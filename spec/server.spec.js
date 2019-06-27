@@ -22,7 +22,7 @@ describe("tests", () => {
           expect(body).to.have.keys(
             "GET /api",
             "GET /api/articles",
-            "GET /api/articles/:artile_id",
+            "GET /api/articles/:articles_id",
             "GET /api/topics",
             "GET /api/users/:username",
             "PATCH /api/articles/:article_id"
@@ -50,9 +50,9 @@ describe("tests", () => {
           expect(res.body).to.have.keys("topics");
         });
     });
-    it("Error 405 - ivalid methods on URL", () => {
-      const invaildMethods = ["patch", "delete", "post"];
-      const methodPromises = invaildMethods.map(method => {
+    it("Error 405 - invalid methods on URL", () => {
+      const invalidMethods = ["patch", "delete", "post"];
+      const methodPromises = invalidMethods.map(method => {
         return request[method]("/api/topics")
           .expect(405)
           .then(res => {
@@ -79,9 +79,9 @@ describe("tests", () => {
         });
     });
 
-    it("Error 405 - ivalid methods on URL", () => {
-      const invaildMethods = ["patch", "delete", "post"];
-      const methodPromises = invaildMethods.map(method => {
+    it("Error 405 - invalid methods on URL", () => {
+      const invalidMethods = ["patch", "delete", "post"];
+      const methodPromises = invalidMethods.map(method => {
         return request[method]("/api/users/butter_bridge")
           .expect(405)
           .then(res => {
@@ -91,14 +91,14 @@ describe("tests", () => {
       return Promise.all(methodPromises);
     });
   });
-  describe("/api/atricles/:article_id", () => {
-    it("Get /api/atricles/:article_id", () => {
+  describe("/api/articles/:article_id", () => {
+    it("Get /api/articles/:article_id", () => {
       return request
         .get("/api/articles/1")
         .expect(200)
         .then(res => {
           expect(res.body).to.eql({
-            articles: {
+            article: {
               article_id: 1,
               title: "Living in the shadow of a great man",
               body: "I find this existence challenging",
@@ -117,7 +117,7 @@ describe("tests", () => {
         .expect(200)
         .then(res => {
           expect(res.body).to.eql({
-            articles: {
+            article: {
               article_id: 2,
               title: "Sony Vaio; or, The Laptop",
               votes: 0,
@@ -136,9 +136,9 @@ describe("tests", () => {
       return request
         .patch("/api/articles/1")
         .send(test)
-        .expect(201)
-        .then(res => {
-          expect(res.body.update.votes).to.eql(110);
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.votes).to.eql(110);
           // console.log(res.body);
         });
     });
@@ -147,9 +147,9 @@ describe("tests", () => {
       return request
         .patch("/api/articles/1")
         .send(test)
-        .expect(201)
-        .then(res => {
-          expect(res.body.update.votes).to.eql(-10);
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.votes).to.eql(-10);
         });
     });
 
@@ -158,22 +158,19 @@ describe("tests", () => {
       return request
         .patch("/api/articles/2")
         .send(test)
-        .expect(201)
-        .then(res => {
-          expect(res.body.update.votes).to.eql(10);
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.votes).to.eql(10);
         })
         .then(() => {
           return request
             .get("/api/articles/2")
             .expect(200)
-            .then(res => {
-              expect(res.body.articles.votes).to.eql(10);
+            .then(({ body }) => {
+              expect(body.article.votes).to.eql(10);
             });
         });
     });
-
-    // insomnia not working as dev?
-    // test for invaild article ID
   });
   describe("/api/articles/:article_id/comment", () => {
     describe("Post", () => {
@@ -213,7 +210,7 @@ describe("tests", () => {
           .then(({ body }) => {
             expect(body.comments).to.be.an("array");
             expect(body.comments.length).to.eql(13);
-            expect(body.comments).to.be.ascendingBy("created_at");
+            expect(body.comments).to.be.descendingBy("created_at");
           });
       });
       it("accepts query for sort by and order", () => {
@@ -344,7 +341,7 @@ describe("tests", () => {
               .get("/api/articles/9")
               .expect(200)
               .then(({ body }) => {
-                expect(body.articles.comment_count).to.eql(1);
+                expect(body.article.comment_count).to.eql(1);
               });
           });
       });
@@ -352,7 +349,7 @@ describe("tests", () => {
   });
   describe("Error Handling", () => {
     describe("App.js", () => {
-      it("enters invaild url", () => {
+      it("enters invalid url", () => {
         return request
           .get("/apples")
           .expect(404)
@@ -362,21 +359,23 @@ describe("tests", () => {
       });
     });
     describe("ArticlesRouter.js", () => {
-      describe("invaild Methods", () => {
-        it("405: error for invaild method - /api/articles/:article_id", () => {
-          const invaildMethods = ["delete", "post"];
-          const methodPromises = invaildMethods.map(method => {
+      describe("invalid Methods", () => {
+        it("405: error for invalid method - /api/articles/:article_id", () => {
+          const invalidMethods = ["delete", "post"];
+          const methodPromises = invalidMethods.map(method => {
             return request[method]("/api/articles/1")
               .expect(405)
               .then(res => {
-                expect(res.body).to.eql({ msg: "method not allowed" });
+                expect(res.body).to.eql({
+                  msg: "method not allowed"
+                });
               });
           });
           return Promise.all(methodPromises);
         });
-        it("405: error for invaild method - /:article_id/comments", () => {
-          const invaildMethods = ["delete", "patch"];
-          const methodPromises = invaildMethods.map(method => {
+        it("405: error for invalid method - /:article_id/comments", () => {
+          const invalidMethods = ["delete", "patch"];
+          const methodPromises = invalidMethods.map(method => {
             return request[method]("/api/articles/1/comments")
               .expect(405)
               .then(res => {
@@ -402,28 +401,28 @@ describe("tests", () => {
             .get("/api/articles/dogs")
             .expect(400)
             .then(({ body }) => {
-              expect(body.msg).to.eql("Error - 400 invaild input");
+              expect(body.msg).to.eql("Error - 400 invalid input");
             });
         });
-        it("Error 400 : column doesnt exist", () => {
+        it("Error 400 : column doesn't exist", () => {
           return request
             .get("/api/articles?sort_by=dave")
             .expect(400)
             .then(({ body }) => {
               console.log(body);
-              expect(body.msg).to.eql("error: 400 - invaild input");
+              expect(body.msg).to.eql("error: 400 - invalid input");
             });
         });
-        it("requests artiles to be ordered by anything other than  ASC or DESC", () => {
+        it("requests articles to be ordered by anything other than  ASC or DESC", () => {
           //do i just expect this to return error or default
           return request
             .get("/api/articles?sort_by=created_at&&order=lemon")
             .expect(400)
             .then(({ body }) => {
-              expect(body.msg).to.eql("error: 400 - invalid innput");
+              expect(body.msg).to.eql("error: 400 - invalid input");
             });
         });
-        it("returns 400 when autor not there", () => {
+        it("returns 400 when author not there", () => {
           return request
             .get("/api/articles?author=lemon")
             .expect(404)
@@ -431,7 +430,7 @@ describe("tests", () => {
               expect(body.msg).to.eql("error: 404 - not found");
             });
         });
-        it("returns 400 when autor is present there but no articles there", () => {
+        it("returns 400 when author is present there but no articles there", () => {
           return request
             .get("/api/articles?author=do_nothing")
             .expect(404)
@@ -447,7 +446,7 @@ describe("tests", () => {
               expect(body.msg).to.eql("error: 404 - not found");
             });
         });
-        it("400 Error: when presented with invaild format", () => {
+        it("400 Error: when presented with invalid format", () => {
           const test = { inc_votes: "10" };
           return request
             .patch("/api/articles/1")
@@ -457,11 +456,11 @@ describe("tests", () => {
               // console.log(res.body.update.votes);
 
               expect(res.body.msg).to.eql(
-                "invaild format - { inc_votes: integer }"
+                "invalid format - { inc_votes: integer }"
               );
             });
         });
-        it("400 invaild format key", () => {
+        it("400 invalid format key", () => {
           const test = { inc_boats: 10 };
           return request
             .patch("/api/articles/1")
@@ -469,7 +468,7 @@ describe("tests", () => {
             .expect(400)
             .then(res => {
               expect(res.body.msg).to.eql(
-                "invaild format - { inc_votes: integer }"
+                "invalid format - { inc_votes: integer }"
               );
             });
         });
@@ -484,7 +483,7 @@ describe("tests", () => {
               .send(test)
               .expect(400)
               .then(({ body }) => {
-                expect(body.msg).to.eql("error: 400 - invaild input");
+                expect(body.msg).to.eql("error: 400 - invalid input");
               });
           });
           it("error 400 - when username doesn't exist", () => {
@@ -497,7 +496,7 @@ describe("tests", () => {
               .send(test)
               .expect(400)
               .then(({ body }) => {
-                expect(body.msg).to.eql("error: 400 - invaild input");
+                expect(body.msg).to.eql("error: 400 - invalid input");
               });
           });
           it("error 400 - when key wrong name doesn't exist", () => {
@@ -510,7 +509,7 @@ describe("tests", () => {
               .send(test)
               .expect(400)
               .then(({ body }) => {
-                expect(body.msg).to.eql("error: 400 - invaild input");
+                expect(body.msg).to.eql("error: 400 - invalid input");
               });
           });
           it("error 404: comment not found", () => {
@@ -525,10 +524,10 @@ describe("tests", () => {
       });
     });
     describe("CommentsRouter.js", () => {
-      describe("invaild menthods", () => {
-        it("405: error for invaild method - /:article_id/comments", () => {
-          const invaildMethods = ["get", "post"];
-          const methodPromises = invaildMethods.map(method => {
+      describe("invalid methods", () => {
+        it("405: error for invalid method - /:article_id/comments", () => {
+          const invalidMethods = ["get", "post"];
+          const methodPromises = invalidMethods.map(method => {
             return request[method]("/api/comments/1")
               .expect(405)
               .then(res => {
@@ -550,7 +549,7 @@ describe("tests", () => {
               .expect(400)
               .then(({ body }) => {
                 expect(body.msg).to.eql(
-                  "invaild format - { inc_votes: integer }"
+                  "invalid format - { inc_votes: integer }"
                 );
               });
           });
@@ -559,17 +558,17 @@ describe("tests", () => {
               .delete("/api/comments/tom")
               .expect(400)
               .then(res => {
-                expect(res.body.msg).to.eql("error: 400 - invaild input");
+                expect(res.body.msg).to.eql("error: 400 - invalid input");
               });
           });
         });
       });
     });
     describe("topicRouter.js", () => {
-      describe("invaild menthods", () => {
-        it("405: error for invaild method - /:article_id/comments", () => {
-          const invaildMethods = ["patch", "post", "delete"];
-          const methodPromises = invaildMethods.map(method => {
+      describe("invalid methods", () => {
+        it("405: error for invalid method - /:article_id/comments", () => {
+          const invalidMethods = ["patch", "post", "delete"];
+          const methodPromises = invalidMethods.map(method => {
             return request[method]("/api/topics/")
               .expect(405)
               .then(res => {
@@ -583,10 +582,10 @@ describe("tests", () => {
       });
     });
     describe("userRouter.js", () => {
-      describe("invaild methods", () => {
-        it("405: error for invaild method - /:article_id/comments", () => {
-          const invaildMethods = ["patch", "post", "delete"];
-          const methodPromises = invaildMethods.map(method => {
+      describe("invalid methods", () => {
+        it("405: error for invalid method - /:article_id/comments", () => {
+          const invalidMethods = ["patch", "post", "delete"];
+          const methodPromises = invalidMethods.map(method => {
             return request[method]("/api/topics/")
               .expect(405)
               .then(res => {
@@ -605,7 +604,7 @@ describe("tests", () => {
               .get("/api/users/fred")
               .expect(404)
               .then(res => {
-                expect(res.body.msg).to.eql("404 - invaild username");
+                expect(res.body.msg).to.eql("404 - invalid username");
               });
           });
         });
