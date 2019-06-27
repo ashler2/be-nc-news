@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
-    "seed-db": "knex seed:run",
     "test-utils": "mocha spec/utils.spec.js",
     "test": "mocha spec/server.spec.js",
     "migrate-make": "knex migrate:make",
@@ -13,7 +12,6 @@
     "migrate-rollback": "knex migrate:rollback",
     "migrate-latest-test": "NODE_ENV=test knex migrate:latest",
     "migrate-rollback-test": "NODE_ENV=test knex migrate:rollback",
-    "seed-roll-test": "NODE_ENV=test knex migrate:rollback && knex migrate:latest knex seed:run",
     "seed-dev": "knex seed:run",
     "seed-test": " NODE_ENV=test knex seed:run",
     "query": "psql -f db/utils/query/query.sql > db/utils/query/output.txt",
@@ -32,6 +30,7 @@
   "homepage": "https://github.com/northcoders/be-nc-news#readme",
   "dependencies": {
     "express": "^4.17.1",
+    "heroku": "^7.26.1",
     "knex": "^0.17.6",
     "node": "^12.4.0",
     "pg": "^7.11.0"

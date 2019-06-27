@@ -13,7 +13,23 @@ describe("tests", () => {
   after(() => {
     connection.destroy();
   });
-
+  describe("/api", () => {
+    it("expects the json file of end points", () => {
+      return request
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).to.have.keys(
+            "GET /api",
+            "GET /api/articles",
+            "GET /api/articles/:artile_id",
+            "GET /api/topics",
+            "GET /api/users/:username",
+            "PATCH /api/articles/:article_id"
+          );
+        });
+    });
+  });
   describe("/api/topics", () => {
     it("returns a list of topics", () => {
       return request
