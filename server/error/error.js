@@ -19,3 +19,6 @@ exports.sendCustomError = (err, req, res, next) => {
   if (err.status === 404) res.status(404).send(err);
   if (err.status === 400) res.status(400).send(err);
 };
+exports.error500s = (err, req, res, next) => {
+  res.status(500).send({ msg: "error: 500 - sever is leaking" });
+};
