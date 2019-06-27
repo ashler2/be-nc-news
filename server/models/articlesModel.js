@@ -2,6 +2,12 @@ const connection = require("../connection");
 
 //could refactor to send getArticles to
 const getArticlesById = params => {
+  if (params.article_id != Number(params.article_id))
+    return Promise.reject({
+      status: 400,
+      msg: "Error - 400 invaild input"
+    });
+
   return connection("articles")
     .count("comments.article_id as comment_count ")
     .select("articles.*")
@@ -9,12 +15,28 @@ const getArticlesById = params => {
     .groupBy("articles.article_id", "comments.article_id")
     .where("articles.article_id", params.article_id)
     .then(([article]) => {
+      if (!article) {
+        return Promise.reject({
+          status: 404,
+          msg: "article does not exist"
+        });
+      }
       article.comment_count = Number(article.comment_count);
+
       return article;
     });
 };
 
 const getArticles = queries => {
+  if (queries.order) queries.order = queries.order.toLowerCase();
+
+  if (!["asc", "desc", undefined].includes(queries.order)) {
+    return Promise.reject({
+      status: 400,
+      msg: "error: 400 - invalid innput"
+    });
+  }
+
   return connection("articles")
     .count("comments.article_id as comment_count ")
     .select(
@@ -34,10 +56,20 @@ const getArticles = queries => {
     })
 
     .then(articles => {
+      articles.forEach(
+        article => (article.comment_count = parseInt(article.comment_count))
+      );
+      if (articles.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "error: 404 - not found"
+        });
+      }
+
       return articles;
     });
 };
-
+// not returning the comment count
 const patchVotes = (params, body) => {
   const votes = connection("articles")
     .where("articles.article_id", params.article_id)
@@ -61,7 +93,7 @@ const patchVotes = (params, body) => {
 
 const postComment = (params, body) => {
   const article = Number(params.article_id);
-
+  //way to check that username is a vaild username
   return connection("comments")
     .insert({
       author: body.username,

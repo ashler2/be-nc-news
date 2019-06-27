@@ -144,32 +144,6 @@ describe("tests", () => {
           expect(res.body.update.votes).to.eql(-10);
         });
     });
-    it("400 Error: when presented with invaild format", () => {
-      const test = { inc_votes: "10" };
-      return request
-        .patch("/api/articles/1")
-        .send(test)
-        .expect(400)
-        .then(res => {
-          // console.log(res.body.update.votes);
-
-          expect(res.body.msg).to.eql(
-            "invaild format - { inc_votes: integer }"
-          );
-        });
-    });
-    it("invaild format key", () => {
-      const test = { inc_boats: 10 };
-      return request
-        .patch("/api/articles/1")
-        .send(test)
-        .expect(400)
-        .then(res => {
-          expect(res.body.msg).to.eql(
-            "invaild format - { inc_votes: integer }"
-          );
-        });
-    });
 
     it("increases from 0", () => {
       const test = { inc_votes: 10 };
@@ -264,6 +238,16 @@ describe("tests", () => {
             expect(body.articles).to.be.an("array");
             expect(body.articles.length).to.eql(12);
             expect(body.articles).to.be.descendingBy("title");
+          });
+      });
+      it("Gets using sort_by comment count", () => {
+        return request
+          .get("/api/articles?sort_by=comment_count")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles).to.be.an("array");
+            expect(body.articles.length).to.eql(12);
+            expect(body.articles).to.be.descendingBy("comment_count");
           });
       });
       it("sort_by Asc", () => {
@@ -366,6 +350,182 @@ describe("tests", () => {
                 expect(body.articles.comment_count).to.eql(1);
               });
           });
+      });
+    });
+  });
+  describe("Error Handling", () => {
+    describe("App.js", () => {
+      it("enters invaild url", () => {
+        return request
+          .get("/apples")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.eql("path does not exist");
+          });
+      });
+    });
+    describe("ArticlesRouter.js", () => {
+      describe("invaild Methods", () => {
+        it("405: error for invaild method - /api/articles/:article_id", () => {
+          const invaildMethods = ["delete", "post"];
+          const methodPromises = invaildMethods.map(method => {
+            return request[method]("/api/articles/1")
+              .expect(405)
+              .then(res => {
+                expect(res.body).to.eql({ msg: "method not allowed" });
+              });
+          });
+          return Promise.all(methodPromises);
+        });
+        it("405: error for invaild method - /:article_id/comments", () => {
+          const invaildMethods = ["delete", "patch"];
+          const methodPromises = invaildMethods.map(method => {
+            return request[method]("/api/articles/1/comments")
+              .expect(405)
+              .then(res => {
+                expect(res.body).to.eql({
+                  msg: "method not allowed"
+                });
+              });
+          });
+          return Promise.all(methodPromises);
+        });
+      });
+      describe("other errors", () => {
+        it("Error 404 : article not found", () => {
+          return request
+            .get("/api/articles/100")
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).to.eql("article does not exist");
+            });
+        });
+        it("Error 400 : article not found - when presented with /dogs", () => {
+          return request
+            .get("/api/articles/dogs")
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.eql("Error - 400 invaild input");
+            });
+        });
+        it("Error 400 : column doesnt exist", () => {
+          return request
+            .get("/api/articles?sort_by=dave")
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.eql("error: 400 - invalid innput");
+            });
+        });
+        it("requests artiles to be ordered by anything other than  ASC or DESC", () => {
+          //do i just expect this to return error or default
+          return request
+            .get("/api/articles?sort_by=created_at&&order=lemon")
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.eql("error: 400 - invalid innput");
+            });
+        });
+        it("returns 400 when autor not there", () => {
+          return request
+            .get("/api/articles?author=lemon")
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).to.eql("error: 404 - not found");
+            });
+        });
+        it("returns 400 when autor is present there but no articles there", () => {
+          return request
+            .get("/api/articles?author=do_nothing")
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).to.eql("error: 404 - not found");
+            });
+        });
+        it("returns 400 when topic not there", () => {
+          return request
+            .get("/api/articles?topic=lemon")
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).to.eql("error: 404 - not found");
+            });
+        });
+        it("400 Error: when presented with invaild format", () => {
+          const test = { inc_votes: "10" };
+          return request
+            .patch("/api/articles/1")
+            .send(test)
+            .expect(400)
+            .then(res => {
+              // console.log(res.body.update.votes);
+
+              expect(res.body.msg).to.eql(
+                "invaild format - { inc_votes: integer }"
+              );
+            });
+        });
+        it("400 invaild format key", () => {
+          const test = { inc_boats: 10 };
+          return request
+            .patch("/api/articles/1")
+            .send(test)
+            .expect(400)
+            .then(res => {
+              expect(res.body.msg).to.eql(
+                "invaild format - { inc_votes: integer }"
+              );
+            });
+        });
+      });
+    });
+    describe("CommentsRouter.js", () => {
+      describe("invaild menthods", () => {
+        it("405: error for invaild method - /:article_id/comments", () => {
+          const invaildMethods = ["get", "post"];
+          const methodPromises = invaildMethods.map(method => {
+            return request[method]("/api/comments/1")
+              .expect(405)
+              .then(res => {
+                expect(res.body).to.eql({
+                  msg: "method not allowed"
+                });
+              });
+          });
+          return Promise.all(methodPromises);
+        });
+      });
+    });
+    describe("topicRouter.js", () => {
+      describe("invaild menthods", () => {
+        it("405: error for invaild method - /:article_id/comments", () => {
+          const invaildMethods = ["patch", "post", "delete"];
+          const methodPromises = invaildMethods.map(method => {
+            return request[method]("/api/topics/")
+              .expect(405)
+              .then(res => {
+                expect(res.body).to.eql({
+                  msg: "method not allowed"
+                });
+              });
+          });
+          return Promise.all(methodPromises);
+        });
+      });
+    });
+    describe("userRouter.js", () => {
+      describe("invaild methods", () => {
+        it("405: error for invaild method - /:article_id/comments", () => {
+          const invaildMethods = ["patch", "post", "delete"];
+          const methodPromises = invaildMethods.map(method => {
+            return request[method]("/api/topics/")
+              .expect(405)
+              .then(res => {
+                expect(res.body).to.eql({
+                  msg: "method not allowed"
+                });
+              });
+          });
+          return Promise.all(methodPromises);
+        });
       });
     });
   });

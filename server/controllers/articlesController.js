@@ -8,9 +8,11 @@ const {
 
 const fetchArticles = (req, res, next) => {
   const queries = req.query;
-  return getArticles(queries).then(articles => {
-    res.status(200).send({ articles });
-  });
+  return getArticles(queries)
+    .then(articles => {
+      res.status(200).send({ articles });
+    })
+    .catch(next);
 };
 
 const fetchArticlesById = (req, res, next) => {
