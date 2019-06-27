@@ -94,6 +94,7 @@ const patchVotes = (params, body) => {
 const postComment = (params, body) => {
   const article = Number(params.article_id);
   //way to check that username is a vaild username
+
   return connection("comments")
     .insert({
       author: body.username,
@@ -116,6 +117,12 @@ const getComments = (params, queries) => {
         query.orderBy(queries.sort_by, queries.order || "ASC");
     })
     .then(data => {
+      if (data.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "Error 404: No comments Found"
+        });
+      }
       return data;
     });
 };

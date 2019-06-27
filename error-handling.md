@@ -64,7 +64,13 @@ For each thing that could go wrong, make a test with your expected status code a
 
 ### GET `/api/articles/:article_id/comments`
 
+- article that doesnt exist? already done
+
 ### POST `/api/articles/:article_id/comments`
+
+- invaild format
+- username that doesnt exist
+- exceeds the usename limit/comment limit
 
 ### PATCH `/api/comments/:comment_id`
 

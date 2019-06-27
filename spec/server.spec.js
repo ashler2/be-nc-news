@@ -74,14 +74,6 @@ describe("tests", () => {
       });
       return Promise.all(methodPromises);
     });
-    it("returns a 404 when username does exist", () => {
-      return request
-        .get("/api/users/fred")
-        .expect(404)
-        .then(res => {
-          expect(res.body.msg).to.eql("404 - invaild username");
-        });
-    });
   });
   describe("/api/atricles/:article_id", () => {
     it("Get /api/atricles/:article_id", () => {
@@ -324,17 +316,6 @@ describe("tests", () => {
             // console.log(res.body);
           });
       });
-      it("error when wrong input ", () => {
-        const test = { inc_botes: "hello" };
-        return request
-          .patch("/api/comments/1")
-          .send(test)
-          .expect(400)
-          .then(({ body }) => {
-            expect(body.msg).to.eql("invaild format - { inc_votes: integer }");
-            // console.log(res.body);
-          });
-      });
     });
     describe("Delete Comment", () => {
       it("delete a comment by comment_id", () => {
@@ -413,7 +394,8 @@ describe("tests", () => {
             .get("/api/articles?sort_by=dave")
             .expect(400)
             .then(({ body }) => {
-              expect(body.msg).to.eql("error: 400 - invalid innput");
+              console.log(body);
+              expect(body.msg).to.eql("error: 400 - invaild input");
             });
         });
         it("requests artiles to be ordered by anything other than  ASC or DESC", () => {
@@ -475,6 +457,55 @@ describe("tests", () => {
               );
             });
         });
+        describe("/api/articles/comments", () => {
+          it("error 400 - when wrong article", () => {
+            const test = {
+              username: "butter_bridge",
+              body: "this was good"
+            };
+            return request
+              .post("/api/articles/1000/comments")
+              .send(test)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.eql("error: 400 - invaild input");
+              });
+          });
+          it("error 400 - when username doesn't exist", () => {
+            const test = {
+              username: "a",
+              body: "this was good"
+            };
+            return request
+              .post("/api/articles/1/comments")
+              .send(test)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.eql("error: 400 - invaild input");
+              });
+          });
+          it("error 400 - when key wrong name doesn't exist", () => {
+            const test = {
+              a: "a",
+              body: "this was good"
+            };
+            return request
+              .post("/api/articles/1/comments")
+              .send(test)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.eql("error: 400 - invaild input");
+              });
+          });
+          it("error 404: comment not found", () => {
+            return request
+              .get("/api/articles/12/comments")
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.msg).to.eql("Error 404: No comments Found");
+              });
+          });
+        });
       });
     });
     describe("CommentsRouter.js", () => {
@@ -491,6 +522,30 @@ describe("tests", () => {
               });
           });
           return Promise.all(methodPromises);
+        });
+      });
+      describe("Other Errors", () => {
+        describe("/api/comments/:comment_id", () => {
+          it("error when wrong input ", () => {
+            const test = { inc_botes: "hello" };
+            return request
+              .patch("/api/comments/1")
+              .send(test)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.msg).to.eql(
+                  "invaild format - { inc_votes: integer }"
+                );
+              });
+          });
+          it("delete a comment by comment_id", () => {
+            return request
+              .delete("/api/comments/tom")
+              .expect(400)
+              .then(res => {
+                expect(res.body.msg).to.eql("error: 400 - invaild input");
+              });
+          });
         });
       });
     });
@@ -525,6 +580,18 @@ describe("tests", () => {
               });
           });
           return Promise.all(methodPromises);
+        });
+      });
+      describe("other Errors", () => {
+        describe("/api/users/username", () => {
+          it("returns a 404 when username does exist", () => {
+            return request
+              .get("/api/users/fred")
+              .expect(404)
+              .then(res => {
+                expect(res.body.msg).to.eql("404 - invaild username");
+              });
+          });
         });
       });
     });

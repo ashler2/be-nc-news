@@ -1,7 +1,8 @@
 exports.errorPsql400s = (err, req, res, next) => {
-  const codes = ["42703"];
+  const codes = ["42703", "23503", "23502", "22P02"];
   //console.log(err.code);
-  const message = { msg: "error: 400 - invalid innput" };
+  const message = { msg: "error: 400 - invaild input" };
+  // console.log(err);
   if (codes.includes(err.code)) {
     res.status(400).send(message);
   } else {
