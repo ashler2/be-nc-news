@@ -132,6 +132,7 @@ describe("tests", () => {
           });
         });
     });
+
     it("updates the votes with patch request", () => {
       const test = { inc_votes: 10 };
       return request
@@ -141,6 +142,16 @@ describe("tests", () => {
         .then(({ body }) => {
           expect(body.article.votes).to.eql(110);
           // console.log(res.body);
+        });
+    });
+    it("updates the votes with patch request", () => {
+      const test = { inc_votes: 0 };
+      return request
+        .patch("/api/articles/1")
+        .send(test)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.votes).to.eql(100);
         });
     });
     it("updates to below 0", () => {
@@ -285,7 +296,6 @@ describe("tests", () => {
           .get("/api/articles?sort_by=title&&order=ASC&&author=a")
           .expect(404)
           .then(({ body }) => {
-            console.log(body);
             expect(body.msg).to.eql("error: 404 - not found");
           });
       });
@@ -436,7 +446,6 @@ describe("tests", () => {
             .get("/api/articles?sort_by=dave")
             .expect(400)
             .then(({ body }) => {
-              console.log(body);
               expect(body.msg).to.eql("error: 400 - invalid input");
             });
         });
@@ -505,7 +514,6 @@ describe("tests", () => {
             .send()
             .expect(200)
             .then(({ body }) => {
-              console.log(body);
               expect(body.article).to.have.keys(
                 "article_id",
                 "title",
@@ -758,7 +766,6 @@ describe("Pagination", () => {
         .get("/api/articles/1/comments")
         .expect(200)
         .then(({ body: { comments } }) => {
-          console.log(comments);
           expect(comments.length).to.eql(10);
         });
     });
@@ -802,6 +809,78 @@ describe("Pagination", () => {
         .then(({ body }) => {
           expect(body.comments.length).to.eql(10);
           expect(body).to.have.keys("comments");
+        });
+    });
+  });
+});
+
+describe("Other routes added", () => {
+  describe("POST /api/articles", () => {
+    it("Posts a comment", () => {
+      const test = {
+        title: "The test title",
+        body:
+          "this body is totally not too short, but its for the purposes of testing",
+        topic: "mitch",
+        author: "butter_bridge"
+      };
+      return request
+        .post("/api/articles/")
+        .send(test)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.article).to.have.keys(
+            "author",
+            "article_id",
+            "votes",
+            "created_at",
+            "body",
+            "title",
+            "topic"
+          );
+          expect(body.article.article_id).to.eql(13);
+        });
+    });
+    it("error 422: when posting comment with invalid username", () => {
+      const test = {
+        title: "The test title",
+        body:
+          "this body is totally not too short, but its for the purposes of testing",
+        topic: "mitch",
+        author: "dave"
+      };
+      return request
+        .post("/api/articles/")
+        .send(test)
+        .expect(422)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("un-processable entity");
+        });
+    });
+    it("error 422: when posting comment with invalid entries", () => {
+      const test = {
+        title: 1,
+        body:
+          "this body is totally not too short, but its for the purposes of testing",
+        topic: "hello",
+        author: "dave"
+      };
+      return request
+        .post("/api/articles/")
+        .send(test)
+        .expect(422)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("un-processable entity");
+        });
+    });
+    it("error 422: when posting comment with invalid entries", () => {
+      const test = {};
+      return request
+        .post("/api/articles/")
+        .send()
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("error: 400 - invalid input");
         });
     });
   });

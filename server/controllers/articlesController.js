@@ -3,7 +3,8 @@ const {
   patchVotes,
   postComment,
   getComments,
-  getArticles
+  getArticles,
+  postArticle
 } = require("../models/articlesModel");
 
 const fetchArticles = (req, res, next) => {
@@ -14,7 +15,14 @@ const fetchArticles = (req, res, next) => {
     })
     .catch(next);
 };
-
+const sendArticle = (req, res, next) => {
+  const body = req.body;
+  return postArticle(body)
+    .then(article => {
+      res.status(201).send(article);
+    })
+    .catch(next);
+};
 const fetchArticlesById = (req, res, next) => {
   const params = req.params;
   return getArticlesById(params)
@@ -62,5 +70,6 @@ module.exports = {
   updateVotes,
   sendComment,
   fetchComment,
-  fetchArticles
+  fetchArticles,
+  sendArticle
 };

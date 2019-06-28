@@ -82,7 +82,19 @@ const getArticles = queries => {
     return { articles, total_count };
   });
 };
-
+const postArticle = body => {
+  return connection("articles")
+    .insert({
+      title: body.title,
+      body: body.body,
+      topic: body.topic,
+      author: body.author
+    })
+    .returning("*")
+    .then(([article]) => {
+      return { article };
+    });
+};
 // not returning the comment count
 const patchVotes = (params, body) => {
   const votes = connection("articles")
@@ -153,5 +165,6 @@ module.exports = {
   patchVotes,
   postComment,
   getComments,
-  getArticles
+  getArticles,
+  postArticle
 };

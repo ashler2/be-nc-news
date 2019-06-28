@@ -7,12 +7,14 @@ const {
   updateVotes,
   sendComment,
   fetchComment,
-  fetchArticles
+  fetchArticles,
+  sendArticle
 } = require("../controllers/articlesController");
 
 articleRouter
   .route("/")
   .get(fetchArticles)
+  .post(sendArticle)
   .all(send405Error);
 
 articleRouter
