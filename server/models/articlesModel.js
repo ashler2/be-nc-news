@@ -29,16 +29,24 @@ const getArticlesById = params => {
 
 const getArticles = queries => {
   if (queries.order) queries.order = queries.order.toLowerCase();
-
   if (!["asc", "desc", undefined].includes(queries.order)) {
     return Promise.reject({
       status: 400,
       msg: "error: 400 - invalid input"
     });
   }
-  //limit and start by
-  //start by needs to be a query for different page so if limit is 20 then start by is going  to increase by 20
-  return connection("articles")
+
+  const b = connection("articles")
+    .select("*")
+    .modify(query => {
+      if (queries.author) query.where("articles.author", "=", queries.author);
+      if (queries.topic) query.where("articles.topic", "=", queries.topic);
+    })
+    .then(all => {
+      return all.length;
+    });
+
+  const a = connection("articles")
     .count("comments.article_id as comment_count ")
     .select(
       "articles.author",
@@ -51,25 +59,30 @@ const getArticles = queries => {
     .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
     .groupBy("articles.article_id", "comments.article_id")
     .orderBy(queries.sort_by || "articles.created_at", queries.order || "Desc")
+    .limit(queries.limit || 10)
+    .offset(queries.p * queries.limit || queries.p * 10 || 0)
     .modify(query => {
       if (queries.author) query.where("articles.author", "=", queries.author);
       if (queries.topic) query.where("articles.topic", "=", queries.topic);
-    })
-
-    .then(articles => {
-      articles.forEach(
-        article => (article.comment_count = parseInt(article.comment_count))
-      );
-      if (articles.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: "error: 404 - not found"
-        });
-      }
-
-      return articles;
     });
+
+  return Promise.all([a, b]).then(([articles, total_count]) => {
+    articles.forEach(
+      article => (article.comment_count = parseInt(article.comment_count))
+    );
+
+    // pagination will cause this is no results
+    if (articles.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: "error: 404 - not found"
+      });
+    }
+
+    return { articles, total_count };
+  });
 };
+
 // not returning the comment count
 const patchVotes = (params, body) => {
   const votes = connection("articles")

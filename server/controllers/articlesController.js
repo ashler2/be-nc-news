@@ -10,7 +10,7 @@ const fetchArticles = (req, res, next) => {
   const queries = req.query;
   return getArticles(queries)
     .then(articles => {
-      res.status(200).send({ articles });
+      res.status(200).send(articles);
     })
     .catch(next);
 };

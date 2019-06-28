@@ -6,13 +6,13 @@ const chai = require("chai");
 chai.use(require("chai-sorted"));
 const expect = chai.expect;
 const connection = require("../server/connection");
+beforeEach(() => {
+  return connection.seed.run();
+});
+after(() => {
+  connection.destroy();
+});
 describe("tests", () => {
-  beforeEach(() => {
-    return connection.seed.run();
-  });
-  after(() => {
-    connection.destroy();
-  });
   describe("/api", () => {
     it("expects the json file of end points", () => {
       return request
@@ -229,7 +229,7 @@ describe("tests", () => {
     describe("GET", () => {
       it("Gets all articles", () => {
         return request.get("/api/articles").then(({ body }) => {
-          expect(body.articles.length).to.eql(12);
+          expect(body.articles.length).to.eql(10);
           expect(body.articles).to.be.descendingBy("created_at");
         });
       });
@@ -241,7 +241,7 @@ describe("tests", () => {
             // console.log(body);
 
             expect(body.articles).to.be.an("array");
-            expect(body.articles.length).to.eql(12);
+            expect(body.articles.length).to.eql(10);
             expect(body.articles).to.be.descendingBy("title");
           });
       });
@@ -251,7 +251,7 @@ describe("tests", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body.articles).to.be.an("array");
-            expect(body.articles.length).to.eql(12);
+            expect(body.articles.length).to.eql(10);
             expect(body.articles).to.be.descendingBy("comment_count");
           });
       });
@@ -263,7 +263,7 @@ describe("tests", () => {
             // console.log(body);
 
             expect(body.articles).to.be.an("array");
-            expect(body.articles.length).to.eql(12);
+            expect(body.articles.length).to.eql(10);
             expect(body.articles).to.be.ascendingBy("title");
           });
       });
@@ -308,7 +308,7 @@ describe("tests", () => {
           .then(({ body }) => {
             expect(body.articles[0].topic).to.eql("mitch");
             expect(body.articles).to.be.an("array");
-            expect(body.articles.length).to.eql(11);
+            expect(body.articles.length).to.eql(10);
             expect(body.articles).to.be.descendingBy("created_at");
           });
       });
@@ -694,6 +694,61 @@ describe("tests", () => {
         });
         return Promise.all(methodPromises);
       });
+    });
+  });
+});
+describe("Pagination", () => {
+  describe("Articles pagination", () => {
+    it("returns a limit of by 10 and accepts limit queries", () => {
+      return request
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).to.eql(10);
+        });
+    });
+    it("returns a limit of by 5 and accepts limit queries", () => {
+      return request
+        .get("/api/articles?limit=5")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).to.eql(5);
+        });
+    });
+    it("returns a limit of by 11 and accepts limit queries", () => {
+      return request
+        .get("/api/articles?limit=11")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).to.eql(11);
+        });
+    });
+    it("returns a limit of by 10 and accepts page queries and limit", () => {
+      return request
+        .get("/api/articles?limit=10&p=1")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length).to.eql(2);
+        });
+    });
+    it("returns a limit of by 10 and accepts just page queries", () => {
+      return request
+        .get("/api/articles?p=1")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).to.eql(2);
+          expect(body).to.have.keys("articles", "total_count");
+        });
+    });
+    it("accepts other query", () => {
+      return request
+        .get("/api/articles?topic=cats")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).to.eql(1);
+          expect(body).to.have.keys("articles", "total_count");
+          expect(body.total_count).to.eql(1);
+        });
     });
   });
 });
