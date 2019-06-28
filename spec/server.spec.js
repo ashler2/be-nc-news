@@ -181,7 +181,7 @@ describe("tests", () => {
           .send(test)
           .expect(201)
           .then(({ body }) => {
-            expect(body.postedComment).to.have.keys(
+            expect(body.comment).to.have.keys(
               "comment_id",
               "author",
               "article_id",
@@ -189,7 +189,7 @@ describe("tests", () => {
               "created_at",
               "body"
             );
-            expect(body.postedComment.comment_id).to.eql(19);
+            expect(body.comment.comment_id).to.eql(19);
           });
       });
     });
@@ -279,6 +279,15 @@ describe("tests", () => {
             expect(body.articles).to.be.ascendingBy("title");
           });
       });
+      it("sort_by title with Asc and by selected author That doesn't exist", () => {
+        return request
+          .get("/api/articles?sort_by=title&&order=ASC&&author=a")
+          .expect(404)
+          .then(({ body }) => {
+            console.log(body);
+            expect(body.msg).to.eql("error: 404 - not found");
+          });
+      });
       it("sort_by title with Asc and by selected author by topic", () => {
         return request
           .get(
@@ -312,9 +321,9 @@ describe("tests", () => {
         return request
           .patch("/api/comments/1")
           .send(test)
-          .expect(201)
+          .expect(200)
           .then(({ body }) => {
-            expect(body.updatedComment.votes).to.eql(26);
+            expect(body.comment.votes).to.eql(26);
             // console.log(res.body);
           });
       });
@@ -323,10 +332,27 @@ describe("tests", () => {
         return request
           .patch("/api/comments/1")
           .send(test)
-          .expect(201)
+          .expect(200)
           .then(({ body }) => {
-            expect(body.updatedComment.votes).to.eql(-100);
+            expect(body.comment.votes).to.eql(-100);
             // console.log(res.body);
+          });
+      });
+      it("returns 200 when no body is passed ", () => {
+        const test = {};
+        return request
+          .patch("/api/comments/1")
+          .send()
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comment).to.have.keys(
+              "comment_id",
+              "author",
+              "article_id",
+              "votes",
+              "created_at",
+              "body"
+            );
           });
       });
     });
@@ -472,6 +498,24 @@ describe("tests", () => {
               );
             });
         });
+        it("200 sent when no body present", () => {
+          return request
+            .patch("/api/articles/1")
+            .send()
+            .expect(200)
+            .then(({ body }) => {
+              console.log(body);
+              expect(body.article).to.have.keys(
+                "article_id",
+                "title",
+                "body",
+                "votes",
+                "topic",
+                "author",
+                "created_at"
+              );
+            });
+        });
         describe("/api/articles/comments", () => {
           it("error 400 - when wrong article", () => {
             const test = {
@@ -481,9 +525,9 @@ describe("tests", () => {
             return request
               .post("/api/articles/1000/comments")
               .send(test)
-              .expect(400)
+              .expect(422)
               .then(({ body }) => {
-                expect(body.msg).to.eql("error: 400 - invalid input");
+                expect(body.msg).to.eql("un-processable entity");
               });
           });
           it("error 400 - when username doesn't exist", () => {
@@ -494,9 +538,9 @@ describe("tests", () => {
             return request
               .post("/api/articles/1/comments")
               .send(test)
-              .expect(400)
+              .expect(422)
               .then(({ body }) => {
-                expect(body.msg).to.eql("error: 400 - invalid input");
+                expect(body.msg).to.eql("un-processable entity");
               });
           });
           it("error 400 - when key wrong name doesn't exist", () => {
@@ -515,9 +559,17 @@ describe("tests", () => {
           it("error 404: comment not found", () => {
             return request
               .get("/api/articles/12/comments")
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments).to.eql([]);
+              });
+          });
+          it("error 404: article not found", () => {
+            return request
+              .get("/api/articles/12222/comments")
               .expect(404)
               .then(({ body }) => {
-                expect(body.msg).to.eql("Error 404: No comments Found");
+                expect(body.msg).to.eql("Error 404: article not found");
               });
           });
         });
@@ -553,12 +605,30 @@ describe("tests", () => {
                 );
               });
           });
-          it("delete a comment by comment_id", () => {
+          it("error 404 when comment_id doesn't exist ", () => {
+            const test = { inc_votes: 10 };
+            return request
+              .patch("/api/comments/10000000")
+              .send(test)
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.msg).to.eql("error 404: comment not found");
+              });
+          });
+          it("delete a comment by invalid comment_id", () => {
             return request
               .delete("/api/comments/tom")
               .expect(400)
               .then(res => {
                 expect(res.body.msg).to.eql("error: 400 - invalid input");
+              });
+          });
+          it("delete a comment by comment_id", () => {
+            return request
+              .delete("/api/comments/1000")
+              .expect(404)
+              .then(res => {
+                expect(res.body.msg).to.eql("error 404: comment not found");
               });
           });
         });
@@ -608,6 +678,21 @@ describe("tests", () => {
               });
           });
         });
+      });
+    });
+    describe("apiRouter.js", () => {
+      it("405: error for invalid method - /api", () => {
+        const invalidMethods = ["patch", "post", "delete"];
+        const methodPromises = invalidMethods.map(method => {
+          return request[method]("/api")
+            .expect(405)
+            .then(res => {
+              expect(res.body).to.eql({
+                msg: "method not allowed"
+              });
+            });
+        });
+        return Promise.all(methodPromises);
       });
     });
   });

@@ -3,7 +3,14 @@ const connection = require("../connection");
 const patchVotes = (params, body) => {
   const votes = connection("comments")
     .where("comments.comment_id", params.comment_id)
-    .returning("*");
+    .returning("*")
+    .increment("votes", body.inc_votes || 0);
+  //200 when no body sent
+  if (Object.keys(body).length === 0)
+    return votes.then(([comment]) => {
+      return comment;
+    });
+
   //has keys and integer
   if (!Number.isInteger(body.inc_votes)) {
     return Promise.reject({
@@ -11,13 +18,13 @@ const patchVotes = (params, body) => {
       msg: "invalid format - { inc_votes: integer }"
     });
   }
-  //increments
-  if (body.inc_votes > 0) votes.increment("votes", body.inc_votes);
-  //decrement
-  if (body.inc_votes < 0) votes.decrement("votes", Math.abs(body.inc_votes));
-
   return votes.then(([updatedComments]) => {
-    // console.log(updatedVotes);
+    if (!updatedComments) {
+      return Promise.reject({
+        status: 404,
+        msg: "error 404: comment not found"
+      });
+    }
     return updatedComments;
   });
 };
@@ -26,8 +33,15 @@ const destroyComment = params => {
   return connection("comments")
     .where("comment_id", params.comment_id)
     .del()
-    .then(data => {
-      return data;
+    .then(deleteCount => {
+      if (deleteCount === 0)
+        return Promise.reject({
+          status: 404,
+          msg: "error 404: comment not found"
+        });
+      else {
+        return deleteCount;
+      }
     });
 };
 

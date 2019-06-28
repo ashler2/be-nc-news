@@ -40,8 +40,8 @@ const sendComment = (req, res, next) => {
   const body = req.body;
 
   return postComment(params, body)
-    .then(postedComment => {
-      res.status(201).send({ postedComment });
+    .then(comment => {
+      res.status(201).send({ comment });
     })
     .catch(next);
 };

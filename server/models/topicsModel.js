@@ -4,8 +4,8 @@ const getTopics = () => {
   return connection
     .select("*")
     .from("topics")
-    .then(data => {
-      return { topics: data };
+    .then(topics => {
+      return { topics };
     });
 };
 

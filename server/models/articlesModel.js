@@ -74,7 +74,13 @@ const getArticles = queries => {
 const patchVotes = (params, body) => {
   const votes = connection("articles")
     .where("articles.article_id", params.article_id)
-    .returning("*");
+    .returning("*")
+    .increment("votes", body.inc_votes || 0);
+  if (Object.keys(body).length === 0)
+    return votes.then(([article]) => {
+      return article;
+    });
+
   //has keys and integer
   if (!Number.isInteger(body.inc_votes)) {
     return Promise.reject({
@@ -82,10 +88,6 @@ const patchVotes = (params, body) => {
       msg: "invalid format - { inc_votes: integer }"
     });
   }
-  //increments
-  if (body.inc_votes > 0) votes.increment("votes", body.inc_votes);
-  //decrement
-  if (body.inc_votes < 0) votes.decrement("votes", Math.abs(body.inc_votes));
 
   return votes.then(([data]) => {
     return data;
@@ -108,20 +110,27 @@ const postComment = (params, body) => {
     });
 };
 
-const getComments = (params, queries) => {
-  return connection("comments")
-    .select("comments.*")
-    .where("articles.article_id", "=", params.article_id)
-    .join("articles", "articles.article_id", "=", "comments.article_id")
-    .orderBy(queries.sort_by || "created_at", queries.order || "DESC")
-    .then(data => {
-      if (data.length === 0) {
+const getComments = ({ article_id }, queries) => {
+  return connection("articles")
+    .select("*")
+    .where("article_id", "=", article_id)
+    .then(exists => {
+      if (exists.length === 0) {
         return Promise.reject({
           status: 404,
-          msg: "Error 404: No comments Found"
+          msg: "Error 404: article not found"
         });
       }
-      return data;
+    })
+    .then(() => {
+      return connection("comments")
+        .select("comments.*")
+        .where("articles.article_id", "=", article_id)
+        .join("articles", "articles.article_id", "=", "comments.article_id")
+        .orderBy(queries.sort_by || "created_at", queries.order || "DESC")
+        .then(data => {
+          return data;
+        });
     });
 };
 module.exports = {

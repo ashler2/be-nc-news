@@ -3,6 +3,8 @@ exports.errorPsql400s = (err, req, res, next) => {
   //console.log(err.code);
   const message = { msg: "error: 400 - invalid input" };
   // console.log(err);
+  if (err.code == "23503")
+    res.status(422).send({ msg: "un-processable entity" });
   if (codes.includes(err.code)) {
     res.status(400).send(message);
   } else {
@@ -18,6 +20,9 @@ exports.send404UrlError = (req, res, next) => {
 exports.sendCustomError = (err, req, res, next) => {
   if (err.status === 404) res.status(404).send(err);
   if (err.status === 400) res.status(400).send(err);
+  else {
+    next();
+  }
 };
 exports.error500s = (err, req, res, next) => {
   res.status(500).send({ msg: "error: 500 - sever is leaking" });
