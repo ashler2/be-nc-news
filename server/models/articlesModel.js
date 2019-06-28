@@ -141,6 +141,8 @@ const getComments = ({ article_id }, queries) => {
         .where("articles.article_id", "=", article_id)
         .join("articles", "articles.article_id", "=", "comments.article_id")
         .orderBy(queries.sort_by || "created_at", queries.order || "DESC")
+        .limit(queries.limit || 10)
+        .offset(queries.p * queries.limit || queries.p * 10 || 0)
         .then(data => {
           return data;
         });

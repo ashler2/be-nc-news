@@ -30,6 +30,7 @@ describe("tests", () => {
         });
     });
   });
+
   describe("/api/topics", () => {
     it("returns a list of topics", () => {
       return request
@@ -200,7 +201,7 @@ describe("tests", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body.comments).to.be.an("array");
-            expect(body.comments.length).to.eql(13);
+            expect(body.comments.length).to.eql(10);
           });
       });
       it("accepts query for sort by", () => {
@@ -209,7 +210,7 @@ describe("tests", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body.comments).to.be.an("array");
-            expect(body.comments.length).to.eql(13);
+            expect(body.comments.length).to.eql(10);
             expect(body.comments).to.be.descendingBy("created_at");
           });
       });
@@ -219,7 +220,7 @@ describe("tests", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body.comments).to.be.an("array");
-            expect(body.comments.length).to.eql(13);
+            expect(body.comments.length).to.eql(10);
             expect(body.comments).to.be.descendingBy("created_at");
           });
       });
@@ -748,6 +749,59 @@ describe("Pagination", () => {
           expect(body.articles.length).to.eql(1);
           expect(body).to.have.keys("articles", "total_count");
           expect(body.total_count).to.eql(1);
+        });
+    });
+  });
+  describe("Comment pagination", () => {
+    it("returns a limit of by 10 and accepts limit queries", () => {
+      return request
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          console.log(comments);
+          expect(comments.length).to.eql(10);
+        });
+    });
+    it("returns a limit of by 5 and accepts limit queries", () => {
+      return request
+        .get("/api/articles/1/comments?limit=5")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments.length).to.eql(5);
+        });
+    });
+    it("returns a limit of by 11 and accepts limit queries", () => {
+      return request
+        .get("/api/articles/1/comments?limit=11")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments.length).to.eql(11);
+        });
+    });
+    it("returns a limit of by 10 and accepts page queries and limit", () => {
+      return request
+        .get("/api/articles/1/comments?limit=10&p=1")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments.length).to.eql(3);
+        });
+    });
+    it("returns a limit of by 10 and accepts just page queries", () => {
+      return request
+        .get("/api/articles/1/comments?p=1")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.length).to.eql(3);
+          expect(body).to.have.keys("comments");
+        });
+    });
+    it("accepts other query", () => {
+      return request
+        .get("/api/articles/1/comments?topic=cats")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.length).to.eql(10);
+          expect(body).to.have.keys("comments");
         });
     });
   });
