@@ -398,7 +398,7 @@ describe("tests", () => {
     describe("ArticlesRouter.js", () => {
       describe("invalid Methods", () => {
         it("405: error for invalid method - /api/articles/:article_id", () => {
-          const invalidMethods = ["delete", "post"];
+          const invalidMethods = ["post"];
           const methodPromises = invalidMethods.map(method => {
             return request[method]("/api/articles/1")
               .expect(405)
@@ -881,6 +881,24 @@ describe("Other routes added", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).to.eql("error: 400 - invalid input");
+        });
+    });
+  });
+  describe("DELETE /api/articles/:article_id", () => {
+    it("it deletes the article of a given ID", () => {
+      return request
+        .delete("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).to.eql({ deleteCount: 1 });
+        })
+        .then(test => {
+          return request
+            .get("/api/articles/1")
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).to.eql("article does not exist");
+            });
         });
     });
   });

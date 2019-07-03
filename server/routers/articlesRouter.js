@@ -8,7 +8,8 @@ const {
   sendComment,
   fetchComment,
   fetchArticles,
-  sendArticle
+  sendArticle,
+  destroyArticle
 } = require("../controllers/articlesController");
 
 articleRouter
@@ -21,6 +22,7 @@ articleRouter
   .route("/:article_id")
   .get(fetchArticlesById)
   .patch(updateVotes)
+  .delete(destroyArticle)
   .all(send405Error);
 
 articleRouter

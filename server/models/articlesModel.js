@@ -160,11 +160,23 @@ const getComments = ({ article_id }, queries) => {
         });
     });
 };
+
+const deleteArticle = ({ article_id }) => {
+  return connection("articles")
+    .where("article_id", article_id)
+    .del()
+    .then(deleted => {
+      console.log(deleted);
+      return { deleteCount: deleted };
+    });
+  console.log(article_id, "hello");
+};
 module.exports = {
   getArticlesById,
   patchVotes,
   postComment,
   getComments,
   getArticles,
-  postArticle
+  postArticle,
+  deleteArticle
 };

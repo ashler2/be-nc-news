@@ -4,7 +4,8 @@ const {
   postComment,
   getComments,
   getArticles,
-  postArticle
+  postArticle,
+  deleteArticle
 } = require("../models/articlesModel");
 
 const fetchArticles = (req, res, next) => {
@@ -65,11 +66,18 @@ const fetchComment = (req, res, next) => {
     .catch(next);
 };
 
+const destroyArticle = (req, res, next) => {
+  const params = req.params;
+  return deleteArticle(params).then(article => {
+    res.status(200).send(article);
+  });
+};
 module.exports = {
   fetchArticlesById,
   updateVotes,
   sendComment,
   fetchComment,
   fetchArticles,
-  sendArticle
+  sendArticle,
+  destroyArticle
 };
