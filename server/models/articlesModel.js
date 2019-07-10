@@ -84,12 +84,7 @@ const getArticles = queries => {
 };
 const postArticle = body => {
   return connection("articles")
-    .insert({
-      title: body.title,
-      body: body.body,
-      topic: body.topic,
-      author: body.author
-    })
+    .insert(body)
     .returning("*")
     .then(([article]) => {
       return { article };

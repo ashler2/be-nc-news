@@ -11,10 +11,11 @@ const {
 app.use(express.json());
 
 app.use("/api", apiRouter);
-app.all("/*", send404UrlError);
 app.use(errorPsql400s);
 
 app.use(sendCustomError);
-// how to test error 500
+
 app.use(error500s);
+app.all("/*", send404UrlError);
+
 module.exports = { app };

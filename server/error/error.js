@@ -3,7 +3,7 @@ exports.errorPsql400s = (err, req, res, next) => {
   //console.log(err.code);
   const message = { msg: "error: 400 - invalid input" };
   // console.log(err);
-  if (err.code == "23503")
+  if (err.code == "23503" || err.code === "23502")
     res.status(422).send({ msg: "un-processable entity" });
   if (codes.includes(err.code)) {
     res.status(400).send(message);

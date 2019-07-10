@@ -8,5 +8,15 @@ const getTopics = () => {
       return { topics };
     });
 };
+const postTopic = body => {
+  const { slug, description } = body;
 
-module.exports = { getTopics };
+  return connection("topics")
+    .insert({ slug, description })
+    .returning("*")
+    .then(([topic]) => {
+      return topic;
+    });
+};
+
+module.exports = { getTopics, postTopic };

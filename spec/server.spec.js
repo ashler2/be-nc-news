@@ -52,7 +52,7 @@ describe("tests", () => {
         });
     });
     it("Error 405 - invalid methods on URL", () => {
-      const invalidMethods = ["patch", "delete", "post"];
+      const invalidMethods = ["patch", "delete"];
       const methodPromises = invalidMethods.map(method => {
         return request[method]("/api/topics")
           .expect(405)
@@ -552,7 +552,7 @@ describe("tests", () => {
                 expect(body.msg).to.eql("un-processable entity");
               });
           });
-          it("error 400 - when key wrong name doesn't exist", () => {
+          it("error 422 - when key wrong name doesn't exist", () => {
             const test = {
               a: "a",
               body: "this was good"
@@ -560,9 +560,9 @@ describe("tests", () => {
             return request
               .post("/api/articles/1/comments")
               .send(test)
-              .expect(400)
+              .expect(422)
               .then(({ body }) => {
-                expect(body.msg).to.eql("error: 400 - invalid input");
+                expect(body.msg).to.eql("un-processable entity");
               });
           });
           it("error 404: comment not found", () => {
@@ -646,7 +646,7 @@ describe("tests", () => {
     describe("topicRouter.js", () => {
       describe("invalid methods", () => {
         it("405: error for invalid method - /:article_id/comments", () => {
-          const invalidMethods = ["patch", "post", "delete"];
+          const invalidMethods = ["patch", "delete"];
           const methodPromises = invalidMethods.map(method => {
             return request[method]("/api/topics/")
               .expect(405)
@@ -662,10 +662,10 @@ describe("tests", () => {
     });
     describe("userRouter.js", () => {
       describe("invalid methods", () => {
-        it("405: error for invalid method - /:article_id/comments", () => {
+        it("405: error for invalid method - /users", () => {
           const invalidMethods = ["patch", "post", "delete"];
           const methodPromises = invalidMethods.map(method => {
-            return request[method]("/api/topics/")
+            return request[method]("/api/users/1")
               .expect(405)
               .then(res => {
                 expect(res.body).to.eql({
@@ -878,9 +878,9 @@ describe("Other routes added", () => {
       return request
         .post("/api/articles/")
         .send()
-        .expect(400)
+        .expect(422)
         .then(({ body }) => {
-          expect(body.msg).to.eql("error: 400 - invalid input");
+          expect(body.msg).to.eql("un-processable entity");
         });
     });
   });
@@ -899,6 +899,47 @@ describe("Other routes added", () => {
             .then(({ body }) => {
               expect(body.msg).to.eql("article does not exist");
             });
+        });
+    });
+  });
+
+  describe("POST /api/topics", () => {
+    it("Posts a topic", () => {
+      const test = {
+        slug: "testing",
+        description: "a topic about testing"
+      };
+      return request
+        .post("/api/topics/")
+        .send(test)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.topic).to.have.keys("slug", "description");
+          expect(body.topic.slug).to.eql("testing");
+        });
+    });
+    it("error 422: when posting comment with invalid key name", () => {
+      const test = {
+        topicName: "testing",
+        description: "a topic about testing"
+      };
+      return request
+        .post("/api/topics/")
+        .send(test)
+        .expect(422)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("un-processable entity");
+        });
+    });
+
+    it("error 422: when posting comment with invalid entries", () => {
+      const test = {};
+      return request
+        .post("/api/topics/")
+        .send(test)
+        .expect(422)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("un-processable entity");
         });
     });
   });

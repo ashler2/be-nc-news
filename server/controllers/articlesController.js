@@ -18,6 +18,7 @@ const fetchArticles = (req, res, next) => {
 };
 const sendArticle = (req, res, next) => {
   const body = req.body;
+
   return postArticle(body)
     .then(article => {
       res.status(201).send(article);
