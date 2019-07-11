@@ -943,4 +943,57 @@ describe("Other routes added", () => {
         });
     });
   });
+  describe("POST /api/users", () => {
+    it("Posts a topic", () => {
+      const test = {
+        username: "test_user",
+        avatar_url: "www.test.test",
+
+        name: "test"
+      };
+      return request
+        .post("/api/users")
+        .send(test)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.user).to.have.keys("username", "avatar_url", "name");
+          expect(body.user.name).to.eql("test");
+        });
+    });
+    it("error 422: when posting comment with invalid key name", () => {
+      const test = {
+        a: "test_user",
+        name: "test",
+        avatar_url: "www.test.test"
+      };
+      return request
+        .post("/api/users/")
+        .send(test)
+        .expect(422)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("un-processable entity");
+        });
+    });
+
+    it("error 422: when posting comment with invalid entries", () => {
+      const test = {};
+      return request
+        .post("/api/users/")
+        .send(test)
+        .expect(422)
+        .then(({ body }) => {
+          expect(body.msg).to.eql("un-processable entity");
+        });
+    });
+  });
+  describe("GET /api/users", () => {
+    it("Gets all articles", () => {
+      return request
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.users.length).to.eql(4);
+        });
+    });
+  });
 });

@@ -15,4 +15,20 @@ const getUserByUsername = params => {
     });
 };
 
-module.exports = { getUserByUsername };
+const postUser = body => {
+  return connection("users")
+    .insert(body)
+    .returning("*")
+    .then(([user]) => {
+      return user;
+    });
+};
+const getUsers = () => {
+  return connection("users")
+    .select("*")
+    .then(users => {
+      return users;
+    });
+};
+
+module.exports = { getUserByUsername, postUser, getUsers };
