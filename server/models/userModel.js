@@ -14,7 +14,7 @@ const getUserByUsername = params => {
       return user;
     });
 };
-
+// need to change so the user cannot be a lenght of 0
 const postUser = body => {
   return connection("users")
     .insert(body)
