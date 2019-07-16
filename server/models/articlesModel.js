@@ -43,7 +43,7 @@ const getArticles = queries => {
       if (queries.topic) query.where("articles.topic", "=", queries.topic);
     })
     .then(all => {
-      return all.length;
+      return all.length + 1;
     });
 
   const a = connection("articles")
