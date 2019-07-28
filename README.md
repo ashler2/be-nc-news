@@ -48,7 +48,7 @@ npm -v
 > if nothing is installed please refer to this [guide](https://nodejs.org/en/download/package-manager/)
 
 ```
-do you need git installed?????????
+Npm i
 ```
 
 this will install all the dependencies from the package.JSON
