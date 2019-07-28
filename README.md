@@ -7,7 +7,7 @@ A RESTful API for a News project, built using;
 - [Postgres](https://www.postgresql.org)
 - [knex.js](https://knexjs.org/)
 
-The API has been deployed on Heroku [here](https://ash-news-backend.herokuapp.com/).
+The API has been deployed on Heroku [here](https://ash-news-backend.herokuapp.com/api).
 
 #
 
